@@ -1,79 +1,101 @@
-const express = require("express")
-const router = express.Router()
+const express = require("express");
+const router = express.Router();
 const { parse } = require("url");
-const fs = require("fs")
+const fs = require("fs");
 const multer = require("multer");
 
 router.get("/", (req, res) => {
   const buffer = fs.readFileSync("products.json");
-  var file = buffer.toString()
-  file = JSON.parse(file)
-  res.send(file)
+  var file = buffer.toString();
+  file = JSON.parse(file);
+  res.send(file);
 });
 
-// router.get("/products/:id", (req, res) => {
-//   var products = fs.readFileSync("products.json");
-//   const { id } = req.params;
-//   var allProducts = JSON.parse(products);
-//   var productId = allProducts.find(product => product.id == id);
-//   res.send(productId);
-// });
+router.get("/:id", (req, res) => {
+  var products = fs.readFileSync("products.json");
+  const { id } = req.params;
+  var allProducts = JSON.parse(products);
+  var productId = allProducts.find(product => product.id == id);
+  res.send(productId);
+});
 
+router.post("/", (req, res) => {
+  var newProduct = req.body;
+  var buffer = fs.readFileSync("products.json");
+  var allProducts = buffer.toString();
+  allProducts = JSON.parse(allProducts);
+  newProduct.id = allProducts.length + 1;
+  newProduct.createdDate = new Date();
+  newProduct.updatedDate = newProduct.createdDate
+  allProducts.push(newProduct);
+  fs.writeFileSync("products.json", JSON.stringify(allProducts));
+  res.send(allProducts);
+});
 
-// router.post("/products", (req, res) => {
-//     var newProduct = req.body
-//     var buffer = fs.readFileSync("products.json")
-//     var allProducts = buffer.toString()
-//     allProducts = JSON.parse(allProducts)
-//     newProduct.id = allProducts.length + 1
-//     newProduct.createdDate = new Date()
-//     allProducts.push(newProduct)
-//     fs.writeFileSync("products.json", JSON.stringify(allProducts))
-//     res.send(allProducts)
-// })
+router.delete("/:id", (req, res) => {
+  const buffer = fs.readFileSync("products.json");
+  const file = buffer.toString();
+  var allProducts = JSON.parse(file);
+  allProducts = allProducts.filter(product => product.id != req.params.id);
+  fs.writeFileSync("products.json", JSON.stringify(allProducts));
+  res.send(allProducts);
+});
 
+router.put("/:id", (req, res) => {
+  const buffer = fs.readFileSync("products.json");
+  const file = buffer.toString();
+  var allProducts = JSON.parse(file);
+  var productToReplace = allProducts.find(
+    product => product.id == req.params.id
+  );
+  allProducts = allProducts.filter(
+    product => product.id != productToReplace.id
+  );
+  var editedProduct = req.body;
+  editedProduct.id = parseInt(productToReplace.id);
+  editedProduct.createdDate = productToReplace.createdDate
+  editedProduct.updatedDate = new Date();
+  allProducts.push(editedProduct);
+  fs.writeFileSync("products.json", JSON.stringify(allProducts));
+  res.send(allProducts);
+});
 
-// router.delete("/products/:id", (req, res) => {
-//   const buffer = fs.readFileSync("products.json")
-//   const file = buffer.toString()
-//   var allProducts = JSON.parse(file)
-//   allProducts = allProducts.filter(product => product.id != req.params.id)
-//   fs.writeFileSync("products.json", JSON.stringify(allProducts))
-//   res.send(allProducts)
-// });
+const uploadImage = multer({});
 
-// router.put("/products/:id", (req, res) => {
-//   const buffer = fs.readFileSync("products.json")
-//   const file = buffer.toString();
-//   var allProducts = JSON.parse(file) 
-//   allProducts = allProducts.filter(product => product.id != req.params.id)
-//   var product = req.body
-//   product.id = req.params.id
-//   product.updatedDate = new Date()
-//   allProducts.push(product)
-//   fs.writeFileSync("products.json", JSON.stringify(allProducts))
-//   res.send(allProducts)
-// });
+router.post("/:id/upload", uploadImage.single("pic"), (req, res) => {
+  var fullUrl = req.protocol + "://" + req.get("host") + "/public/img/";
+  var fileName =
+    req.params.id + "." + req.file.originalname.split(".").reverse()[0];
+  var path = "./public/img/" + fileName;
+  fs.writeFileSync(path, req.file.buffer);
 
-// const uploadImage = multer({});
+  var buffer = fs.readFileSync("products.json");
+  var file = buffer.toString();
+  var allProducts = JSON.parse(file);
+  var product = allProducts.find(
+    singleProduct => singleProduct.id == req.params.id
+  );
+  allProducts.filter(product => product.id != req.params.id);
 
-// router.post("/products/:id/upload", uploadImage.single("pic"), (req, res) => {
-//     var fullUrl = req.protocol + "://" + req.get("host") + "/public/img/";
-//     var fileName =  req.params.id + "." + req.file.originalname.split(".").reverse()[0];
-//     var path = "./public/img/" + fileName
-//     fs.writeFileSync(path, req.file.buffer)
+  product.imageUrl = fullUrl + fileName;
 
-//     var buffer = fs.readFileSync("products.json")
-//     var file = buffer.toString()
-//     var allProducts = JSON.parse(file)
-//     var product = allProducts.find(singleProduct => singleProduct.id == req.params.id);
-//     allProducts.filter(product => product.id != req.params.id)
+  allProducts.push(product);
+  fs.writeFileSync("products.json", JSON.stringify(allProducts));
+  res.send(product);
+});
 
-//     product.imageUrl = fullUrl + fileName
+router.get("/:id/reviews", (req, res) => {
+  var products = fs.readFileSync("products.json");
+  const { id } = req.params;
+  var allProducts = JSON.parse(products);
+  var reviews = fs.readFileSync("reviews.json");
+  var allReviews = JSON.parse(reviews);
+  var productId = allProducts.find(product => product.id == id);
+  var productReviewId = allReviews.filter(review => review.productId == id);
+  productId = productReviewId
+  res.send(productReviewId)
+});
 
-//     allProducts.push(product)
-//     fs.writeFileSync("products.json", JSON.stringify(allProducts))
-//     res.send(product);
-// });
+///product/{id}/Reviews
 
-module.exports = router
+module.exports = router;
