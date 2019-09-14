@@ -1,49 +1,57 @@
 [
-  {
-    "name": "Nokia 7.1",
-    "description": "Android 9.0 Pie - 64 GB - Dual Camera - Dual SIM",
-    "brand": "nokia",
-    "imageUrl": "https://drop.ndtv.com/TECH/product_database/images/2152017124957PM_635_nokia_3310.jpeg?downsize=*:420&output-quality=80",
-    "price": 270,
-    "category": "smartphones",
-    "id": 2
-  },
-  {
-    "name": "Jeans",
-    "description": "High-Rise",
-    "brand": "Levi's",
-    "imageUrl": "http://localhost:3000/public/img/3.jpg",
-    "price": 38.81,
-    "category": "Clothes",
-    "id": 3
-  },
-  {
-    "name": "Samsung",
-    "description": "anything",
-    "brand": "samsung",
-    "imageUrl": "https://drop.ndtv.com/TECH/product_database/images/2152017124957PM_635_nokia_3310.jpeg?downsize=*:420&output-quality=80",
-    "price": 320,
-    "category": "smartphones",
-    "id": "1"
-  },
-  {
-    "name": "newSamsung",
-    "description": "dual",
-    "brand": "samsung",
-    "imageUrl": "https://drop.ndtv.com/TECH/product_database/images/2152017124957PM_635_nokia_3310.jpeg?downsize=*:420&output-quality=80",
-    "price": 320,
-    "category": "smartphones",
-    "id": "4",
-    "updatedDate": "2019-09-13T09:36:27.595Z"
-  },
-  {
-    "name": "Jeans",
-    "description": "High-Rise",
-    "brand": "Levi's",
-    "imageUrl": "http://localhost:3000/public/img/3.jpg",
-    "price": 38.81,
-    "category": "Clothes",
-    "id": 3
-  }
-  
+    {
+        "name": "Nokia 7.1",
+        "description": "Android 9.0 Pie - 64 GB - Dual Camera - Dual SIM",
+        "brand": "nokia",
+        "imageUrl": "http://localhost:3000/public/img/2.jpg",
+        "price": 270,
+        "category": "smartphones",
+        "id": 2
+    },
+    {
+        "name": "Jeans",
+        "description": "High-Rise",
+        "brand": "Levi's",
+        "imageUrl": "http://localhost:3000/public/img/3.jpg",
+        "price": 38.81,
+        "category": "Clothes",
+        "id": 3
+    },
+    {
+        "name": "Samsung",
+        "description": "anything",
+        "brand": "samsung",
+        "imageUrl": "https://drop.ndtv.com/TECH/product_database/images/2152017124957PM_635_nokia_3310.jpeg?downsize=*:420&output-quality=80",
+        "price": 320,
+        "category": "smartphones",
+        "id": "1"
+    },
+    {
+        "name": "newSamsung",
+        "description": "dual",
+        "brand": "samsung",
+        "imageUrl": "https://drop.ndtv.com/TECH/product_database/images/2152017124957PM_635_nokia_3310.jpeg?downsize=*:420&output-quality=80",
+        "price": 320,
+        "category": "smartphones",
+        "id": "4",
+        "updatedDate": "2019-09-13T09:36:27.595Z"
+    },
+    {
+        "name": "Jeans",
+        "description": "High-Rise",
+        "brand": "Levi's",
+        "imageUrl": "http://localhost:3000/public/img/3.jpg",
+        "price": 38.81,
+        "category": "Clothes",
+        "id": 3
+    },
+    {
+        "name": "Nokia 7.1",
+        "description": "Android 9.0 Pie - 64 GB - Dual Camera - Dual SIM",
+        "brand": "nokia",
+        "imageUrl": "http://localhost:3000/public/img/2.jpg",
+        "price": 270,
+        "category": "smartphones",
+        "id": 2
+    }
 ]
