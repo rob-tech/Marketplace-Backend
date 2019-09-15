@@ -85,15 +85,12 @@ router.post("/:id/upload", uploadImage.single("pic"), (req, res) => {
 });
 
 router.get("/:id/reviews", (req, res) => {
-  var products = fs.readFileSync("products.json");
   const { id } = req.params;
-  var allProducts = JSON.parse(products);
   var reviews = fs.readFileSync("reviews.json");
   var allReviews = JSON.parse(reviews);
-  var productId = allProducts.find(product => product.id == id);
   var productReviewId = allReviews.filter(review => review.productId == id);
-  productId = productReviewId
   res.send(productReviewId)
+  console.log(productReviewId)
 });
 
 ///product/{id}/Reviews
