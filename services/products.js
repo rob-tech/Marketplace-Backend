@@ -1,97 +1,139 @@
 const express = require("express");
-const router = express.Router();
-const { parse } = require("url");
-const fs = require("fs");
+const idGen = require("shortid");
 const multer = require("multer");
+// const { parse } = require("url")
+const path = require("path");
+const utils = require("./utils");
+const fs = require("fs-extra");
 
-router.get("/", (req, res) => {
-  const buffer = fs.readFileSync("products.json");
-  var file = buffer.toString();
-  file = JSON.parse(file);
-  res.send(file);
+const router = express.Router();
+
+getProducts = async () => {
+  // const buffer = fs.readFileSync("products.json")
+  // var file = buffer.toString()
+  // file = JSON.parse(file)
+  // res.send(file)
+  return await getItems("products.json");
+};
+
+saveProducts = async products => {
+  await saveItems("products.json", products);
+  // await fs.writeFile("products.json", JSON.stringify(products));
+};
+
+// router.get("/", async (req, res) => {
+// res.send(await getProducts())
+// })
+
+//http://localhost:3000/products?category=electronics
+
+router.get("/", async (req, res) => {
+  var products = await getProducts();
+  res.send(
+    products.filter(
+      x =>
+        !req.query.category ||
+        x.category.toLowerCase() == req.query.category.toLowerCase()
+    )
+  );
 });
 
-router.get("/:id", (req, res) => {
-  var products = fs.readFileSync("products.json");
-  const { id } = req.params;
-  var allProducts = JSON.parse(products);
-  var productId = allProducts.find(product => product.id == id);
-  res.send(productId);
+router.get("/:id", async (req, res) => {
+  var products = await getProducts();
+  res.send(products.find(product => product.id == req.params.id));
 });
 
-router.post("/", (req, res) => {
+router.get("/:id/reviews", async (req, res) => {
+  var reviews = await getItems("reviews.json");
+  res.send(reviews.filter(review => review.productId == req.params.id));
+});
+
+router.post("/", async (req, res) => {
+  var products = await getProducts();
   var newProduct = req.body;
-  var buffer = fs.readFileSync("products.json");
-  var allProducts = buffer.toString();
-  allProducts = JSON.parse(allProducts);
-  newProduct.id = allProducts.length + 1;
-  newProduct.createdDate = new Date();
-  newProduct.updatedDate = newProduct.createdDate
-  allProducts.push(newProduct);
-  fs.writeFileSync("products.json", JSON.stringify(allProducts));
-  res.send(allProducts);
+  newProduct.createdAt = new Date();
+  newProduct.updatedAt = newProduct.createdAt;
+  newProduct.id = idGen.generate();
+
+  products.push(newProduct);
+  await saveProducts(products);
+
+  res.send(newProduct);
 });
 
-router.delete("/:id", (req, res) => {
-  const buffer = fs.readFileSync("products.json");
-  const file = buffer.toString();
-  var allProducts = JSON.parse(file);
-  allProducts = allProducts.filter(product => product.id != req.params.id);
-  fs.writeFileSync("products.json", JSON.stringify(allProducts));
-  res.send(allProducts);
-});
 
-router.put("/:id", (req, res) => {
-  const buffer = fs.readFileSync("products.json");
-  const file = buffer.toString();
-  var allProducts = JSON.parse(file);
-  var productToReplace = allProducts.find(
-    product => product.id == req.params.id
-  );
-  allProducts = allProducts.filter(
-    product => product.id != productToReplace.id
-  );
-  var editedProduct = req.body;
-  editedProduct.id = parseInt(productToReplace.id);
-  editedProduct.createdDate = productToReplace.createdDate
-  editedProduct.updatedDate = new Date();
-  allProducts.push(editedProduct);
-  fs.writeFileSync("products.json", JSON.stringify(allProducts));
-  res.send(allProducts);
-});
+const multerInstance = multer({});
 
-const uploadImage = multer({});
-
-router.post("/:id/upload", uploadImage.single("pic"), (req, res) => {
+router.post("/:id/upload", multerInstance.single("pic"), async (req, res) => {
+  //1) save the picture
   var fullUrl = req.protocol + "://" + req.get("host") + "/public/img/";
-  var fileName =
-    req.params.id + "." + req.file.originalname.split(".").reverse()[0];
-  var path = "./public/img/" + fileName;
-  fs.writeFileSync(path, req.file.buffer);
+  req.params.id + "." + req.file.originalname.split(".").reverse()[0]
+  var ext = path.extname(req.file.originalname);
+  var productID = req.params.id;
+  var fileName = productID + ext;
+  await fs.writeFile("./public/img/" + fileName, req.file.buffer);
 
-  var buffer = fs.readFileSync("products.json");
-  var file = buffer.toString();
-  var allProducts = JSON.parse(file);
-  var product = allProducts.find(
-    singleProduct => singleProduct.id == req.params.id
-  );
-  allProducts.filter(product => product.id != req.params.id);
+  //2) update image link
+  var products = await getProducts();
+  var toUpdate = products.find(product => product.id == req.params.id);
+  toUpdate.image = fullUrl + fileName;
+  await saveProducts(products);
 
-  product.imageUrl = fullUrl + fileName;
-
-  allProducts.push(product);
-  fs.writeFileSync("products.json", JSON.stringify(allProducts));
-  res.send(product);
+  res.send(toUpdate);
 });
 
-router.get("/:id/reviews", (req, res) => {
-  const { id } = req.params;
-  var reviews = fs.readFileSync("reviews.json");
-  var allReviews = JSON.parse(reviews);
-  var productReviewId = allReviews.filter(review => review.productId == id);
-  res.send(productReviewId)
-  console.log(productReviewId)
-});
+
+router.put("/:id", multerInstance.single("pic"), async (req, res) => {
+
+  if (req.file) {
+      var fullUrl = req.protocol + "://" + req.get("host") + "/public/img/"
+      req.params.id + "." + req.file.originalname.split(".").reverse()[0]
+      var ext = path.extname(req.file.originalname)
+      var fileName = req.params.id + ext;
+      await fs.writeFile("./public/img/" + fileName, req.file.buffer)
+  }
+
+  var products = await getProducts();
+  var oldProduct = products.find(x => x.id == req.params.id)
+  var newProduct = JSON.parse(req.body.metadata)
+  newProduct.updatedAt = new Date()
+  delete newProduct.id
+  delete newProduct.createdAt
+
+  Object.assign(oldProduct, newProduct)
+
+  await saveProducts(products)
+
+  res.send(oldProduct)
+})
+
+// router.delete("/:id", (req, res) => {
+//   const buffer = fs.readFileSync("products.json")
+//   const file = buffer.toString()
+//   var allProducts = JSON.parse(file)
+//   allProducts = allProducts.filter(product => product.id != req.params.id)
+//   fs.writeFileSync("products.json", JSON.stringify(allProducts))
+//   res.send(allProducts)
+// });
+
+// router.put("/:id", (req, res) => {
+//   const buffer = fs.readFileSync("products.json")
+//   const file = buffer.toString()
+//   var allProducts = JSON.parse(file)
+//   var productToReplace = allProducts.find(
+//     product => product.id == req.params.id
+//   );
+//   allProducts = allProducts.filter(
+//     product => product.id != productToReplace.id
+//   );
+//   var editedProduct = req.body
+//   editedProduct.id = parseInt(productToReplace.id)
+//   editedProduct.createdDate = productToReplace.createdDate
+//   editedProduct.updatedDate = new Date()
+//   allProducts.push(editedProduct)
+//   fs.writeFileSync("products.json", JSON.stringify(allProducts))
+//   res.send(allProducts)
+// });
 
 ///product/{id}/Reviews
 
