@@ -49,27 +49,6 @@ router.post("/", async (req, res) => {
   }
 })
 
-// router.put("/:id", async (req, res) => {
-//   try {
-//     const mongo = await MongoClient.connect(mongoServerURL, {
-//       useNewUrlParser: true
-//     })
-
-//     const collection = mongo.db("Amazon").collection("Products")
-//     var modification = req.body
-//     const { modifiedCount } = await collection.updateOne({ _id: req.params.id }, { $set: req.body })
-
-//     if (modifiedCount > 0) {
-//       res.send('OK')
-//     } else {
-//       res.send('NOTHING TO MODIFY')
-//     }
-
-//   } catch (error) {
-//     console.log(error)
-//   }
-// })
-
 
 router.put("/:id", async (req, res) => {
   try {
@@ -78,7 +57,7 @@ router.put("/:id", async (req, res) => {
     })
     const collection = mongo.db("Amazon").collection("Products")
     var modification = req.body
-    var newProduct = await collection.updateOne({ _id: req.params.id }, { $set: modification })
+    var newProduct = await collection.updateOne({_id: new ObjectID(req.params.id) }, { $set: modification })
     console.log(newProduct)
     res.send(modification)
   } catch (error) {
@@ -137,14 +116,30 @@ router.delete("/:id/reviews/:reviewId", async (req, res) => {
     })
     const collection = mongo.db("Amazon").collection("Products")
     console.log(collection)
-    const review = await collection.updateOne({ _id: new ObjectID(req.params.id)}, {$pull: {reviews: { _id: req.params.reviewId} } } )
+    const review = await collection.updateOne({ _id: new ObjectID(req.params.id)}, {$pull: {reviews: { id: new ObjectID(req.params.reviewId)} } } )
     console.log(review)
-    res.send( "OK" )
-    
+    res.send( "OK" )    
   } catch (error) {
     console.log(error)
   }
+})
 
+
+router.put("/:id/reviews/:reviewId", async (req, res) => {
+  try {
+    const mongo = await MongoClient.connect(mongoServerURL, {
+      useNewUrlParser: true
+    })
+    const collection = mongo.db("Amazon").collection("Products")
+    var modification = req.body
+    const review = await collection.updateOne({ _id: new ObjectID(req.params.id), reviews: {$elemMatch: {id: new ObjectID(req.params.reviewId)}}}, { $set: modification })
+    
+    console.log(review)
+    res.send(modification)
+  } catch (error) {
+    res.send(error)
+    console.log(error)
+  }
 })
 
 
