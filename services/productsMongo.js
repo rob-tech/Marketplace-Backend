@@ -132,10 +132,10 @@ router.put("/:id/reviews/:reviewId", async (req, res) => {
     })
     const collection = mongo.db("Amazon").collection("Products")
     var modification = req.body
-    const review = await collection.updateOne({ _id: new ObjectID(req.params.id), reviews: {$elemMatch: {id: new ObjectID(req.params.reviewId)}}}, { $set: modification })
-    
+    const review = await collection.findOne({ _id: new ObjectID(req.params.id), reviews: {id: new ObjectID(req.params.reviewId)}})
+    const modreview = await collection.updateOne({_id: new ObjectID(req.params.id), "reviews.id": new ObjectID(req.params.reviewId)}, { $set: modification })
     console.log(review)
-    res.send(modification)
+    res.send(modreview)
   } catch (error) {
     res.send(error)
     console.log(error)
