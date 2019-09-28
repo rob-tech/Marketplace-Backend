@@ -77,8 +77,8 @@ router.post("/:id/reviews", async (req, res) => {
 router.put("/:id/reviews/:reviewId", async (req, res) => {
   try {
     var modification = req.body
-    await productSchema.findById(req.params.id, {reviews: {id: new ObjectID(req.params.reviewId)}})
-    const modReview = await productSchema.updateOne(req.params.id, {"reviews.id": new ObjectID(req.params.reviewId)}, { $set: {reviews: modification }})
+    var review = await productSchema.findById(req.params.id)
+    const modReview = await productSchema.updateOne({"reviews._id": req.params.reviewId}, { $set: {reviews: modification }})
     console.log(modReview)
     res.send(modReview)
   } catch (error) {
@@ -86,6 +86,19 @@ router.put("/:id/reviews/:reviewId", async (req, res) => {
     console.log(error)
   }
 })
+
+// router.put("/:id/reviews/:reviewId", async (req, res) => {
+//   try {
+//     var modification = req.body
+//     const modReview = await productSchema.updateOne({"reviews._id": req.params.reviewId }, { $set: { "reviews.$": req.body }})
+//     var fullItem = await productSchema.findById(req.params.id)
+//     console.log(modReview)
+//     res.send(fullItem)
+//   } catch (error) {
+//     console.log(error)
+//     res.send("id not found")
+//   }
+//  })
 // router.put("/:id/reviews/:reviewId", async (req, res) => {
 //   try {
 //     const mongo = await MongoClient.connect(mongoServerURL, {
