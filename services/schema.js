@@ -2,6 +2,12 @@ const { Schema} = require("mongoose")
 const mongoose = require("mongoose")
 const validator = require("validator")
 
+const reviewSchema = new Schema({
+    _id: {type: Schema.Types.ObjectId, auto: true},
+    comment: String,
+    rating: Number,
+    creationDate: Date
+})
 const productSchema = new Schema({
     name: {
         type: String,
@@ -23,14 +29,16 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
-    Projects:  [{
-    _id: {type: Schema.Types.ObjectId, auto: true},
-    Name: String,
-    Description: String,
-    CreationDate: Date,
-    repoURL: String,
-    LiveURL: String
-    }]
+    creationDate: { 
+        type: Date, 
+        default: Date.now 
+    },
+    updatedDate: { 
+        type: Date, 
+        default: Date.now 
+    },
+
+    reviews: [reviewSchema]
 })
 
-module.exports = mongoose.model('Student', studentSchema)
+module.exports = mongoose.model('product', productSchema)
