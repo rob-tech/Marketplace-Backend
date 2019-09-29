@@ -74,19 +74,6 @@ router.post("/:id/reviews", async (req, res) => {
   }
 })
 
-router.put("/:id/reviews/:reviewId", async (req, res) => {
-  try {
-    var modification = req.body
-    const modReview = await productSchema.updateOne({ "reviews._id": req.params.reviewId }, { $set: { "reviews.$": req.body } })
-    var fullItem = await productSchema.findById(req.params.id)
-    console.log(modReview)
-    res.send(fullItem)
-  } catch (error) {
-    console.log(error)
-    res.send("id not found")
-  }
-})
-
 
 router.delete("/:id/reviews/:reviewId", async (req, res) => {
   try {
@@ -112,8 +99,6 @@ router.put("/:id/reviews/:reviewId", async (req, res) => {
     res.send("id not found")
   }
 })
-
-
 
 
 module.exports = router
