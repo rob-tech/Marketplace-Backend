@@ -132,8 +132,9 @@ router.put("/:id/reviews/:reviewId", async (req, res) => {
     })
     const collection = mongo.db("Amazon").collection("Products")
     var modification = req.body
-    const review = await collection.findOne({ _id: new ObjectID(req.params.id), reviews: {id: new ObjectID(req.params.reviewId)}})
-    const modreview = await collection.updateOne({_id: new ObjectID(req.params.id), "reviews.id": new ObjectID(req.params.reviewId)}, { $set: {reviews: modification }})
+    const review = await collection.findOne({ _id: new ObjectID(req.params.id)}, {reviews: {id: new ObjectID(req.params.reviewId)}})
+    modification.id = new ObjectID(req.params.reviewId)
+    const modreview = await collection.updateOne({"reviews.id": new ObjectID(req.params.reviewId)}, { $set: {"reviews.$": modification}})
     console.log(modreview)
     res.send(modreview)
   } catch (error) {
@@ -141,6 +142,8 @@ router.put("/:id/reviews/:reviewId", async (req, res) => {
     console.log(error)
   }
 })
+
+
 
 
 module.exports = router;
